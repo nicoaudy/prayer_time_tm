@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:prayer_time_tm/models/city_prayer.model.dart';
+import 'package:prayer_time_tm/models/prayer_times.model.dart';
 import 'package:prayer_time_tm/views/add_new_city.screen.dart';
+import 'package:prayer_time_tm/views/prayer_details.screen.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -159,7 +161,22 @@ class _HomePageState extends State<Home> {
                     ),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () {
-                      // TODO: Navigate to details screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PrayerDetailsScreen(
+                            cityName: city.cityName,
+                            countryName: city.countryName,
+                            prayerTimes: PrayerTimes(
+                              fajr: '05:30',
+                              dhuhr: '12:30',
+                              asr: '15:45',
+                              maghrib: '18:15',
+                              isha: '19:45',
+                            ),
+                          ),
+                        ),
+                      );
                     },
                   ),
                 );

@@ -43,7 +43,6 @@ class AddNewCityScreenState extends State<AddNewCityScreen> {
 
       setState(() {});
     } catch (error) {
-      print(error);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Failed to fetch countries. Please try again!'),
       ));
