@@ -1,9 +1,9 @@
 import 'package:hive/hive.dart';
 
-part 'saved_city.model.g.dart';
+part 'save_city.model.g.dart';
 
-@HiveType(typeId: 1)
-class SavedCity {
+@HiveType(typeId: 0)
+class SavedCity extends HiveObject {
   @HiveField(0)
   final String cityName;
 
@@ -11,7 +11,7 @@ class SavedCity {
   final String countryName;
 
   @HiveField(2)
-  final Map<String, String> prayerTimes;
+  final Map<String, dynamic> prayerTimes;
 
   @HiveField(3)
   final DateTime lastUpdated;
@@ -22,4 +22,26 @@ class SavedCity {
     required this.prayerTimes,
     required this.lastUpdated,
   });
+
+  String getNextPrayer() {
+    final now = DateTime.now();
+    final currentTime =
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+
+    final prayers = [
+      {'name': 'Fajr', 'time': prayerTimes['Fajr']},
+      {'name': 'Dhuhr', 'time': prayerTimes['Dhuhr']},
+      {'name': 'Asr', 'time': prayerTimes['Asr']},
+      {'name': 'Maghrib', 'time': prayerTimes['Maghrib']},
+      {'name': 'Isha', 'time': prayerTimes['Isha']},
+    ];
+
+    for (var prayer in prayers) {
+      if (currentTime.compareTo(prayer['time']!) < 0) {
+        return '${prayer['name']}: ${prayer['time']}';
+      }
+    }
+
+    return 'Fajr: ${prayerTimes['Fajr']}';
+  }
 }
