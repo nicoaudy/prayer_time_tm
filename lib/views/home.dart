@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:prayer_time_tm/models/city_prayer.model.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:prayer_time_tm/models/prayer_times.model.dart';
+import 'package:prayer_time_tm/models/save_city.model.dart';
 import 'package:prayer_time_tm/views/add_new_city.screen.dart';
 import 'package:prayer_time_tm/views/prayer_details.screen.dart';
 
@@ -11,37 +12,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomePageState extends State<Home> {
-  final List<CityPrayer> _cities = [
-    CityPrayer(
-      cityName: 'Jakarta',
-      countryName: 'Indonesia',
-      nextPrayer: 'Maghrib',
-      nextPrayerTime: '18:15',
-      lastUpdated: DateTime.now(),
-    ),
-    CityPrayer(
-      cityName: 'Makkah',
-      countryName: 'Saudi Arabia',
-      nextPrayer: 'Isha',
-      nextPrayerTime: '19:45',
-      lastUpdated: DateTime.now(),
-    ),
-    CityPrayer(
-      cityName: 'Istanbul',
-      countryName: 'Turkey',
-      nextPrayer: 'Fajr',
-      nextPrayerTime: '05:30',
-      lastUpdated: DateTime.now(),
-    ),
-    CityPrayer(
-      cityName: 'Dubai',
-      countryName: 'UAE',
-      nextPrayer: 'Asr',
-      nextPrayerTime: '15:45',
-      lastUpdated: DateTime.now(),
-    ),
-  ];
-
   Color _getPrayerColor(String prayer) {
     switch (prayer.toLowerCase()) {
       case 'fajr':
@@ -70,8 +40,11 @@ class _HomePageState extends State<Home> {
         ),
         elevation: 2,
       ),
-      body: _cities.isEmpty
-          ? const Center(
+      body: ValueListenableBuilder(
+        valueListenable: Hive.box<SavedCity>('saved_cities').listenable(),
+        builder: (context, Box<SavedCity> box, _) {
+          if (box.isEmpty) {
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -88,106 +61,110 @@ class _HomePageState extends State<Home> {
                   ),
                 ],
               ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(8),
-              itemCount: _cities.length,
-              itemBuilder: (context, index) {
-                final city = _cities[index];
-                return Card(
-                  elevation: 2,
-                  margin: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 4,
+            );
+          }
+
+          final cities = box.values.toList();
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(8),
+            itemCount: cities.length,
+            itemBuilder: (context, index) {
+              final city = cities[index];
+              final nextPrayer = city.getNextPrayer().split(': ');
+
+              return Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  title: Row(
+                    children: [
+                      Text(
+                        city.cityName,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        city.countryName,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
                   ),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    title: Row(
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
                       children: [
-                        Text(
-                          city.cityName,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                _getPrayerColor(nextPrayer[0]).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _getPrayerColor(nextPrayer[0]),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            nextPrayer[0],
+                            style: TextStyle(
+                              color: _getPrayerColor(nextPrayer[0]),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          city.countryName,
+                          nextPrayer[1],
                           style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
+                            color: _getPrayerColor(nextPrayer[0]),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
                       ],
                     ),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: _getPrayerColor(city.nextPrayer)
-                                  .withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: _getPrayerColor(city.nextPrayer),
-                                width: 1,
-                              ),
-                            ),
-                            child: Text(
-                              city.nextPrayer,
-                              style: TextStyle(
-                                color: _getPrayerColor(city.nextPrayer),
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            city.nextPrayerTime,
-                            style: TextStyle(
-                              color: _getPrayerColor(city.nextPrayer),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PrayerDetailsScreen(
-                            cityName: city.cityName,
-                            countryName: city.countryName,
-                            prayerTimes: PrayerTimes(
-                              fajr: '05:30',
-                              dhuhr: '12:30',
-                              asr: '15:45',
-                              maghrib: '18:15',
-                              isha: '19:45',
-                            ),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PrayerDetailsScreen(
+                          cityName: city.cityName,
+                          countryName: city.countryName,
+                          prayerTimes: PrayerTimes(
+                            fajr: city.prayerTimes['Fajr']!,
+                            dhuhr: city.prayerTimes['Dhuhr']!,
+                            asr: city.prayerTimes['Asr']!,
+                            maghrib: city.prayerTimes['Maghrib']!,
+                            isha: city.prayerTimes['Isha']!,
                           ),
                         ),
-                      );
-                    },
-                  ),
-                );
-              },
-            ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => const AddNewCityScreen(),
-            ),
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddNewCityScreen()),
           );
         },
         tooltip: 'Add new city',

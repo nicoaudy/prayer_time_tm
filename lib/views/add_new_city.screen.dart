@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:prayer_time_tm/models/country_city.model.dart';
 import 'package:prayer_time_tm/models/prayer_times.model.dart';
+import 'package:hive/hive.dart';
+import 'package:prayer_time_tm/models/save_city.model.dart';
 
 class AddNewCityScreen extends StatefulWidget {
   const AddNewCityScreen({super.key});
@@ -106,10 +108,42 @@ class AddNewCityScreenState extends State<AddNewCityScreen> {
     }
   }
 
-  void _saveCity() {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('$_selectedCity saved successfully!'),
-    ));
+  void _saveCity() async {
+    if (_prayerTimes == null ||
+        _selectedCity == null ||
+        _selectedCountry == null) {
+      return;
+    }
+
+    try {
+      final box = Hive.box<SavedCity>('saved_cities');
+
+      final savedCity = SavedCity(
+        cityName: _selectedCity!,
+        countryName: _selectedCountry!,
+        prayerTimes: {
+          'Fajr': _prayerTimes!.fajr,
+          'Dhuhr': _prayerTimes!.dhuhr,
+          'Asr': _prayerTimes!.asr,
+          'Maghrib': _prayerTimes!.maghrib,
+          'Isha': _prayerTimes!.isha,
+        },
+        lastUpdated: DateTime.now(),
+      );
+
+      await box.put('${_selectedCity}_${_selectedCountry}', savedCity);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$_selectedCity saved successfully!')),
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to save city. Please try again!')),
+      );
+    }
   }
 
   @override

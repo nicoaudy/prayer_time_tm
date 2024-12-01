@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:prayer_time_tm/models/prayer_times.model.dart';
 import 'dart:async';
+import 'package:hive/hive.dart';
+import 'package:prayer_time_tm/models/save_city.model.dart';
 
 class PrayerDetailsScreen extends StatefulWidget {
   final String cityName;
@@ -70,6 +72,71 @@ class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
     return 'Fajr'; // If all prayers have passed, next is tomorrow's Fajr
   }
 
+  void _showDeleteConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete City'),
+          content: Text(
+            'Are you sure you want to delete ${widget.cityName}? This action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('CANCEL'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              onPressed: () async {
+                final box = Hive.box<SavedCity>('saved_cities');
+                await box.delete('${widget.cityName}_${widget.countryName}');
+
+                if (mounted) {
+                  Navigator.pop(context); // Close dialog
+                  Navigator.pop(context); // Return to home screen
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${widget.cityName} has been deleted'),
+                      action: SnackBarAction(
+                        label: 'UNDO',
+                        onPressed: () {
+                          final savedCity = SavedCity(
+                            cityName: widget.cityName,
+                            countryName: widget.countryName,
+                            prayerTimes: {
+                              'Fajr': widget.prayerTimes.fajr,
+                              'Dhuhr': widget.prayerTimes.dhuhr,
+                              'Asr': widget.prayerTimes.asr,
+                              'Maghrib': widget.prayerTimes.maghrib,
+                              'Isha': widget.prayerTimes.isha,
+                            },
+                            lastUpdated: DateTime.now(),
+                          );
+                          box.put(
+                            '${widget.cityName}_${widget.countryName}',
+                            savedCity,
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: const Text(
+                'DELETE',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,10 +146,7 @@ class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            onPressed: () {
-              // TODO: Implement delete functionality
-              Navigator.pop(context);
-            },
+            onPressed: _showDeleteConfirmation,
           ),
         ],
       ),
