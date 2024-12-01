@@ -1,6 +1,6 @@
 name: prayer_time_tm
 description: "Assignment TM"
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 version: 1.0.0+1
 
@@ -11,15 +11,20 @@ dependencies:
   flutter:
     sdk: flutter
 
-  dio: ^5.7.0
   cupertino_icons: ^1.0.8
+
+  dio: ^5.7.0
   dropdown_search: ^6.0.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   flutter_lints: ^4.0.0
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.8
 
 flutter:
   uses-material-design: true
