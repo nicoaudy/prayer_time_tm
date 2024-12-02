@@ -156,174 +156,125 @@ class AddNewCityScreenState extends State<AddNewCityScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add New City'),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator.adaptive())
           : SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Card(
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Select Location',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            DropdownSearch<String>(
-                              popupProps: const PopupProps.menu(
-                                showSearchBox: true,
-                                searchFieldProps: TextFieldProps(
-                                  decoration: InputDecoration(
-                                    hintText: "Search country...",
-                                    prefixIcon: Icon(Icons.search),
-                                  ),
-                                ),
-                              ),
-                              items: (_, __) => _countries,
-                              decoratorProps: const DropDownDecoratorProps(
-                                decoration: InputDecoration(
-                                  labelText: "Select Country",
-                                  prefixIcon: Icon(Icons.flag),
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              onChanged: (newValue) {
-                                setState(() {
-                                  _selectedCountry = newValue;
-                                  _cities.clear();
-                                  _selectedCity = null;
-                                });
-                                if (newValue != null) {
-                                  _fetchCities(newValue);
-                                }
-                              },
-                              selectedItem: _selectedCountry,
-                            ),
-                            const SizedBox(height: 16),
-                            DropdownSearch<String>(
-                              popupProps: const PopupProps.menu(
-                                showSearchBox: true,
-                                searchFieldProps: TextFieldProps(
-                                  decoration: InputDecoration(
-                                    hintText: "Search city...",
-                                    prefixIcon: Icon(Icons.search),
-                                  ),
-                                ),
-                              ),
-                              items: (_, __) => _cities,
-                              decoratorProps: const DropDownDecoratorProps(
-                                decoration: InputDecoration(
-                                  labelText: "Select City",
-                                  prefixIcon: Icon(Icons.location_city),
-                                  border: OutlineInputBorder(),
-                                ),
-                              ),
-                              onChanged: (newValue) {
-                                setState(() => _selectedCity = newValue);
-                              },
-                              selectedItem: _selectedCity,
-                            ),
-                            const SizedBox(height: 24),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: (_selectedCountry != null &&
-                                        _selectedCity != null)
-                                    ? _fetchPrayerTimes
-                                    : null,
-                                style: ElevatedButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
-                                  backgroundColor:
-                                      Theme.of(context).primaryColor,
-                                  foregroundColor: Colors.white,
-                                ),
-                                icon: const Icon(Icons.schedule),
-                                label: const Text(
-                                  'Fetch Prayer Times',
-                                  style: TextStyle(fontSize: 16),
-                                ),
-                              ),
-                            ),
-                          ],
+                    const Text(
+                      'Select Location',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    DropdownSearch<String>(
+                      popupProps: const PopupProps.menu(
+                        showSearchBox: true,
+                        searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                            hintText: "Search country...",
+                            prefixIcon: Icon(Icons.search),
+                          ),
+                        ),
+                      ),
+                      items: (_, __) => _countries,
+                      decoratorProps: const DropDownDecoratorProps(
+                        decoration: InputDecoration(
+                          labelText: "Select Country",
+                          prefixIcon: Icon(Icons.flag),
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      onChanged: (newValue) {
+                        setState(() {
+                          _selectedCountry = newValue;
+                          _cities.clear();
+                          _selectedCity = null;
+                        });
+                        if (newValue != null) {
+                          _fetchCities(newValue);
+                        }
+                      },
+                      selectedItem: _selectedCountry,
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownSearch<String>(
+                      popupProps: const PopupProps.menu(
+                        showSearchBox: true,
+                        searchFieldProps: TextFieldProps(
+                          decoration: InputDecoration(
+                            hintText: "Search city...",
+                            prefixIcon: Icon(Icons.search),
+                          ),
+                        ),
+                      ),
+                      items: (_, __) => _cities,
+                      decoratorProps: const DropDownDecoratorProps(
+                        decoration: InputDecoration(
+                          labelText: "Select City",
+                          prefixIcon: Icon(Icons.location_city),
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      onChanged: (newValue) {
+                        setState(() => _selectedCity = newValue);
+                      },
+                      selectedItem: _selectedCity,
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed:
+                            (_selectedCountry != null && _selectedCity != null)
+                                ? _fetchPrayerTimes
+                                : null,
+                        icon: const Icon(Icons.schedule),
+                        label: const Text(
+                          'Fetch Prayer Times',
+                          style: TextStyle(fontSize: 16),
                         ),
                       ),
                     ),
                     if (_showPrayerTimes && _prayerTimes != null) ...[
+                      const SizedBox(height: 32),
+                      const Divider(),
+                      const SizedBox(height: 16),
+                      Text(
+                        _selectedCity ?? '',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(height: 24),
-                      Card(
-                        elevation: 4,
-                        child: Column(
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(4),
-                                  topRight: Radius.circular(4),
-                                ),
-                              ),
-                              child: Text(
-                                _selectedCity ?? '',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                children: [
-                                  _buildPrayerTimeRow('Fajr',
-                                      _prayerTimes!.fajr, Icons.wb_twilight),
-                                  _buildPrayerTimeRow('Dhuhr',
-                                      _prayerTimes!.dhuhr, Icons.wb_sunny),
-                                  _buildPrayerTimeRow(
-                                      'Asr', _prayerTimes!.asr, Icons.sunny),
-                                  _buildPrayerTimeRow('Maghrib',
-                                      _prayerTimes!.maghrib, Icons.nights_stay),
-                                  _buildPrayerTimeRow('Isha',
-                                      _prayerTimes!.isha, Icons.dark_mode),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton.icon(
-                                  onPressed: _saveCity,
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16),
-                                    backgroundColor: Colors.green,
-                                    foregroundColor: Colors.white,
-                                  ),
-                                  icon: const Icon(Icons.save),
-                                  label: const Text(
-                                    'Save City',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                      _buildPrayerTimeRow(
+                          'Fajr', _prayerTimes!.fajr, Icons.wb_twilight),
+                      _buildPrayerTimeRow(
+                          'Dhuhr', _prayerTimes!.dhuhr, Icons.wb_sunny),
+                      _buildPrayerTimeRow(
+                          'Asr', _prayerTimes!.asr, Icons.sunny),
+                      _buildPrayerTimeRow(
+                          'Maghrib', _prayerTimes!.maghrib, Icons.nights_stay),
+                      _buildPrayerTimeRow(
+                          'Isha', _prayerTimes!.isha, Icons.dark_mode),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: _saveCity,
+                          icon: const Icon(Icons.save),
+                          label: const Text(
+                            'Save City',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       ),
                     ],
@@ -336,7 +287,7 @@ class AddNewCityScreenState extends State<AddNewCityScreen> {
 
   Widget _buildPrayerTimeRow(String prayer, String time, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
           Icon(icon, size: 24, color: Theme.of(context).primaryColor),

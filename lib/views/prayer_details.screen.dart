@@ -420,13 +420,20 @@ class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
   }
 
   String _getRemainingTime(String prayerTime) {
-    final prayer = DateTime(
+    final prayerHour = int.parse(prayerTime.split(':')[0]);
+    final prayerMinute = int.parse(prayerTime.split(':')[1]);
+
+    DateTime prayer = DateTime(
       _now.year,
       _now.month,
       _now.day,
-      int.parse(prayerTime.split(':')[0]),
-      int.parse(prayerTime.split(':')[1]),
+      prayerHour,
+      prayerMinute,
     );
+
+    if (prayer.isBefore(_now)) {
+      prayer = prayer.add(const Duration(days: 1));
+    }
 
     final difference = prayer.difference(_now);
     final hours = difference.inHours;
