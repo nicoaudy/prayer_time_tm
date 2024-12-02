@@ -159,7 +159,7 @@ class AddNewCityScreenState extends State<AddNewCityScreen> {
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator.adaptive())
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16),

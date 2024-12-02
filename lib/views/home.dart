@@ -17,11 +17,14 @@ class _HomePageState extends State<Home> {
   final Map<String, DateTime> _cityTimes = {};
   late Timer _timer;
   final _worldtimePlugin = Worldtime();
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _startTimeUpdates();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startTimeUpdates();
+    });
   }
 
   @override
@@ -30,8 +33,8 @@ class _HomePageState extends State<Home> {
     super.dispose();
   }
 
-  void _startTimeUpdates() {
-    _updateAllCityTimes();
+  void _startTimeUpdates() async {
+    await _updateAllCityTimes();
 
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       _updateAllCityTimes();
@@ -42,8 +45,15 @@ class _HomePageState extends State<Home> {
     final box = Hive.box<SavedCity>('saved_cities');
     final cities = box.values.toList();
 
-    for (var city in cities) {
-      try {
+    if (cities.isEmpty) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      for (var city in cities) {
         if (!_cityTimes.containsKey(city.timezone)) {
           final cityTime = await _worldtimePlugin.timeByCity(city.timezone);
           _cityTimes[city.timezone] = cityTime;
@@ -52,13 +62,15 @@ class _HomePageState extends State<Home> {
             const Duration(seconds: 1),
           );
         }
-      } catch (e) {
-        debugPrint('Error updating time for ${city.cityName}: $e');
       }
-    }
-
-    if (mounted) {
-      setState(() {});
+    } catch (e) {
+      debugPrint('Error updating times: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -100,6 +112,12 @@ class _HomePageState extends State<Home> {
       body: ValueListenableBuilder(
         valueListenable: Hive.box<SavedCity>('saved_cities').listenable(),
         builder: (context, Box<SavedCity> box, _) {
+          if (_isLoading) {
+            return const Center(
+              child: CircularProgressIndicator.adaptive(),
+            );
+          }
+
           if (box.isEmpty) {
             return const Center(
               child: Column(
@@ -202,18 +220,18 @@ class _HomePageState extends State<Home> {
                               color: _getPrayerColor(nextPrayer[0]),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.timer_outlined,
                                   color: Colors.white,
                                   size: 16,
                                 ),
-                                const SizedBox(width: 4),
+                                SizedBox(width: 4),
                                 Text(
                                   'NEXT PRAYER',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
