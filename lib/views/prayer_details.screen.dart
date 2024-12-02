@@ -3,6 +3,7 @@ import 'package:prayer_time_tm/models/prayer_times.model.dart';
 import 'dart:async';
 import 'package:hive/hive.dart';
 import 'package:prayer_time_tm/models/save_city.model.dart';
+import 'package:worldtime/worldtime.dart';
 
 class PrayerDetailsScreen extends StatefulWidget {
   final String cityName;
@@ -22,14 +23,31 @@ class PrayerDetailsScreen extends StatefulWidget {
 
 class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
   late Timer _timer;
+  DateTime _now = DateTime.now();
   String _currentDateTime = '';
+  bool _isLoading = true;
+
+  final _worldtimePlugin = Worldtime();
 
   @override
   void initState() {
     super.initState();
+    initTime();
+  }
+
+  Future<void> initTime() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    _now = await _worldtimePlugin.timeByCity(widget.prayerTimes.timezone);
     _updateDateTime();
     _timer =
         Timer.periodic(const Duration(seconds: 1), (_) => _updateDateTime());
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -39,21 +57,19 @@ class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
   }
 
   void _updateDateTime() {
-    final now = DateTime.now();
     setState(() {
-      _currentDateTime = '${now.day.toString().padLeft(2, '0')}-'
-          '${now.month.toString().padLeft(2, '0')}-'
-          '${now.year} '
-          '${now.hour.toString().padLeft(2, '0')}:'
-          '${now.minute.toString().padLeft(2, '0')}:'
-          '${now.second.toString().padLeft(2, '0')}';
+      _currentDateTime = '${_now.day.toString().padLeft(2, '0')}-'
+          '${_now.month.toString().padLeft(2, '0')}-'
+          '${_now.year} '
+          '${_now.hour.toString().padLeft(2, '0')}:'
+          '${_now.minute.toString().padLeft(2, '0')}:'
+          '${_now.second.toString().padLeft(2, '0')}';
     });
   }
 
   String _getNextPrayer() {
-    final now = DateTime.now();
     final currentTime =
-        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+        '${_now.hour.toString().padLeft(2, '0')}:${_now.minute.toString().padLeft(2, '0')}';
 
     final prayers = [
       {'name': 'Fajr', 'time': widget.prayerTimes.fajr},
@@ -69,7 +85,7 @@ class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
       }
     }
 
-    return 'Fajr'; // If all prayers have passed, next is tomorrow's Fajr
+    return 'Fajr';
   }
 
   void _showDeleteConfirmation() {
@@ -95,8 +111,8 @@ class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
                 await box.delete('${widget.cityName}_${widget.countryName}');
 
                 if (mounted) {
-                  Navigator.pop(context); // Close dialog
-                  Navigator.pop(context); // Return to home screen
+                  Navigator.pop(context);
+                  Navigator.pop(context);
 
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -114,7 +130,8 @@ class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
                               'Maghrib': widget.prayerTimes.maghrib,
                               'Isha': widget.prayerTimes.isha,
                             },
-                            lastUpdated: DateTime.now(),
+                            lastUpdated: _now,
+                            timezone: widget.prayerTimes.timezone,
                           );
                           box.put(
                             '${widget.cityName}_${widget.countryName}',
@@ -150,14 +167,16 @@ class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            _buildPrayerTimesList(context),
-          ],
-        ),
-      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildHeader(context),
+                  _buildPrayerTimesList(context),
+                ],
+              ),
+            ),
     );
   }
 
@@ -401,16 +420,15 @@ class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
   }
 
   String _getRemainingTime(String prayerTime) {
-    final now = DateTime.now();
     final prayer = DateTime(
-      now.year,
-      now.month,
-      now.day,
+      _now.year,
+      _now.month,
+      _now.day,
       int.parse(prayerTime.split(':')[0]),
       int.parse(prayerTime.split(':')[1]),
     );
 
-    final difference = prayer.difference(now);
+    final difference = prayer.difference(_now);
     final hours = difference.inHours;
     final minutes = difference.inMinutes % 60;
 

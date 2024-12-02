@@ -149,6 +149,7 @@ class _HomePageState extends State<Home> {
                             asr: city.prayerTimes['Asr']!,
                             maghrib: city.prayerTimes['Maghrib']!,
                             isha: city.prayerTimes['Isha']!,
+                            timezone: city.timezone,
                           ),
                         ),
                       ),

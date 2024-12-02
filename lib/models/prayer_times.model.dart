@@ -4,6 +4,7 @@ class PrayerTimes {
   final String asr;
   final String maghrib;
   final String isha;
+  final String timezone;
 
   PrayerTimes({
     required this.fajr,
@@ -11,15 +12,17 @@ class PrayerTimes {
     required this.asr,
     required this.maghrib,
     required this.isha,
+    required this.timezone,
   });
 
   factory PrayerTimes.fromJson(Map<String, dynamic> json) {
     return PrayerTimes(
-      fajr: json['Fajr'],
-      dhuhr: json['Dhuhr'],
-      asr: json['Asr'],
-      maghrib: json['Maghrib'],
-      isha: json['Isha'],
+      fajr: json["timings"]['Fajr'],
+      dhuhr: json["timings"]['Dhuhr'],
+      asr: json["timings"]['Asr'],
+      maghrib: json["timings"]['Maghrib'],
+      isha: json["timings"]['Isha'],
+      timezone: json['meta']?['timezone'] ?? 'UTC',
     );
   }
 }

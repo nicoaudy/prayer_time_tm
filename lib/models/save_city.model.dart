@@ -16,11 +16,15 @@ class SavedCity extends HiveObject {
   @HiveField(3)
   final DateTime lastUpdated;
 
+  @HiveField(4)
+  final String timezone;
+
   SavedCity({
     required this.cityName,
     required this.countryName,
     required this.prayerTimes,
     required this.lastUpdated,
+    required this.timezone,
   });
 
   String getNextPrayer() {

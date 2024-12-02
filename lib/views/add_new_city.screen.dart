@@ -80,10 +80,8 @@ class AddNewCityScreenState extends State<AddNewCityScreen> {
       _showPrayerTimes = false;
     });
 
-    final city = _selectedCity;
-    final country = _selectedCountry ?? 'Any';
     final url =
-        'https://api.aladhan.com/v1/timingsByCity?city=$city&country=$country&method=2';
+        'https://api.aladhan.com/v1/timingsByCity?city=$_selectedCity&country=$_selectedCountry&method=2';
 
     try {
       final response = await _dio.get(url);
@@ -91,7 +89,7 @@ class AddNewCityScreenState extends State<AddNewCityScreen> {
       if (response.statusCode == 200) {
         final data = response.data;
         setState(() {
-          _prayerTimes = PrayerTimes.fromJson(data['data']['timings']);
+          _prayerTimes = PrayerTimes.fromJson(data['data']);
           _showPrayerTimes = true;
         });
       } else {
@@ -121,6 +119,7 @@ class AddNewCityScreenState extends State<AddNewCityScreen> {
       final savedCity = SavedCity(
         cityName: _selectedCity!,
         countryName: _selectedCountry!,
+        timezone: _prayerTimes!.timezone,
         prayerTimes: {
           'Fajr': _prayerTimes!.fajr,
           'Dhuhr': _prayerTimes!.dhuhr,
@@ -131,7 +130,7 @@ class AddNewCityScreenState extends State<AddNewCityScreen> {
         lastUpdated: DateTime.now(),
       );
 
-      await box.put('${_selectedCity}_${_selectedCountry}', savedCity);
+      await box.put('${_selectedCity}_$_selectedCountry', savedCity);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

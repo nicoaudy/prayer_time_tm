@@ -21,13 +21,14 @@ class SavedCityAdapter extends TypeAdapter<SavedCity> {
       countryName: fields[1] as String,
       prayerTimes: (fields[2] as Map).cast<String, dynamic>(),
       lastUpdated: fields[3] as DateTime,
+      timezone: fields[4] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, SavedCity obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.cityName)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class SavedCityAdapter extends TypeAdapter<SavedCity> {
       ..writeByte(2)
       ..write(obj.prayerTimes)
       ..writeByte(3)
-      ..write(obj.lastUpdated);
+      ..write(obj.lastUpdated)
+      ..writeByte(4)
+      ..write(obj.timezone);
   }
 
   @override

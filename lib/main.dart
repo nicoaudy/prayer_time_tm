@@ -6,7 +6,7 @@ import 'package:prayer_time_tm/models/save_city.model.dart';
 void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(SavedCityAdapter());
-  await Hive.openBox<SavedCity>('saved_cities');
 
+  await Hive.openBox<SavedCity>('saved_cities');
   runApp(const App());
 }
