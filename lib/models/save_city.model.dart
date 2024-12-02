@@ -27,10 +27,11 @@ class SavedCity extends HiveObject {
     required this.timezone,
   });
 
-  String getNextPrayer() {
-    final now = DateTime.now();
+  String getNextPrayer(DateTime? timezoneTime) {
+    if (timezoneTime == null) return 'Fajr: ${prayerTimes['Fajr']}';
+
     final currentTime =
-        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+        '${timezoneTime.hour.toString().padLeft(2, '0')}:${timezoneTime.minute.toString().padLeft(2, '0')}';
 
     final prayers = [
       {'name': 'Fajr', 'time': prayerTimes['Fajr']},
