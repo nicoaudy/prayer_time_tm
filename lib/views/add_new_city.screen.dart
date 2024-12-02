@@ -132,12 +132,10 @@ class AddNewCityScreenState extends State<AddNewCityScreen> {
 
       await box.put('${_selectedCity}_$_selectedCountry', savedCity);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$_selectedCity saved successfully!')),
-        );
-        Navigator.pop(context);
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$_selectedCity saved successfully!')),
+      );
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to save city. Please try again!')),

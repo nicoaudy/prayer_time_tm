@@ -110,38 +110,36 @@ class _PrayerDetailsScreenState extends State<PrayerDetailsScreen> {
                 final box = Hive.box<SavedCity>('saved_cities');
                 await box.delete('${widget.cityName}_${widget.countryName}');
 
-                if (mounted) {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
+                Navigator.pop(context);
+                Navigator.pop(context);
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${widget.cityName} has been deleted'),
-                      action: SnackBarAction(
-                        label: 'UNDO',
-                        onPressed: () {
-                          final savedCity = SavedCity(
-                            cityName: widget.cityName,
-                            countryName: widget.countryName,
-                            prayerTimes: {
-                              'Fajr': widget.prayerTimes.fajr,
-                              'Dhuhr': widget.prayerTimes.dhuhr,
-                              'Asr': widget.prayerTimes.asr,
-                              'Maghrib': widget.prayerTimes.maghrib,
-                              'Isha': widget.prayerTimes.isha,
-                            },
-                            lastUpdated: _now,
-                            timezone: widget.prayerTimes.timezone,
-                          );
-                          box.put(
-                            '${widget.cityName}_${widget.countryName}',
-                            savedCity,
-                          );
-                        },
-                      ),
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('${widget.cityName} has been deleted'),
+                    action: SnackBarAction(
+                      label: 'UNDO',
+                      onPressed: () {
+                        final savedCity = SavedCity(
+                          cityName: widget.cityName,
+                          countryName: widget.countryName,
+                          prayerTimes: {
+                            'Fajr': widget.prayerTimes.fajr,
+                            'Dhuhr': widget.prayerTimes.dhuhr,
+                            'Asr': widget.prayerTimes.asr,
+                            'Maghrib': widget.prayerTimes.maghrib,
+                            'Isha': widget.prayerTimes.isha,
+                          },
+                          lastUpdated: _now,
+                          timezone: widget.prayerTimes.timezone,
+                        );
+                        box.put(
+                          '${widget.cityName}_${widget.countryName}',
+                          savedCity,
+                        );
+                      },
                     ),
-                  );
-                }
+                  ),
+                );
               },
               child: const Text(
                 'DELETE',

@@ -66,11 +66,9 @@ class _HomePageState extends State<Home> {
     } catch (e) {
       debugPrint('Error updating times: $e');
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
